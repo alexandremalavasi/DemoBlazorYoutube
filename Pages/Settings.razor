@@ -1,0 +1,80 @@
+﻿@page "/settings"
+@inject Blazored.LocalStorage.ILocalStorageService localStorage
+
+
+<div class="text-center">
+    <div class="row text-center">
+        <div class="col-12 text-center">
+            <div class="row">
+                <div class="col-8 offset-2 box-pomodoro">
+
+                    <div class="row text-center">
+                        <div class="col-8 offset-2 text-center">
+                            <EditForm Model="@_pomodoroSettings" OnValidSubmit="FormSubmit">
+
+                                <p>
+                                    <label>
+                                        Pomodoro:
+                                        <InputNumber @bind-Value="_pomodoroSettings.PomodoroDuration" />
+                                    </label>
+                                </p>
+                                <p>
+                                    <label>
+                                        Short Break:
+                                        <InputNumber @bind-Value="_pomodoroSettings.ShortBreak" />
+                                    </label>
+                                </p>
+                                <p>
+                                    <label>
+                                        Long Break:
+                                        <InputNumber @bind-Value="_pomodoroSettings.LongBreak" />
+                                    </label>
+                                </p>
+
+
+                                <DataAnnotationsValidator />
+                                <ValidationSummary />
+
+                                <button type="submit">Submit</button>
+
+                                <br />
+
+                            </EditForm>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+
+</div>
+
+
+@code {
+    private PomodoroSetttings _pomodoroSettings = new PomodoroSetttings();
+
+    protected override async Task OnInitializedAsync()
+    {
+
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        var json = await localStorage.GetItemAsync<string>("pomodoroSettings");
+
+        if(json != null)
+        {
+            _pomodoroSettings = System.Text.Json.JsonSerializer.Deserialize<PomodoroSetttings>(json);
+            StateHasChanged();
+        }
+    }
+
+    private async Task FormSubmit()
+    {
+        var json = System.Text.Json.JsonSerializer.Serialize(_pomodoroSettings);
+        await localStorage.SetItemAsync("pomodoroSettings", json);
+    }
+}
